@@ -1,0 +1,24 @@
+{
+  "development": {
+    "username": "postgres",
+    "password": "Reading911!",
+    "database": "music_tour_unlv_9",
+    "host": "127.0.0.1",
+    "dialect": "postgres",
+    "port": 5432
+  },
+  "test": {
+    "username": "postgres",
+    "password": "Reading911!",
+    "database": "music_tour_unlv_9_test",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "postgres",
+    "password": "Reading911!",
+    "database": "music_tour_unlv_9_production",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  }
+}
