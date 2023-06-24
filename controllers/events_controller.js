@@ -1,9 +1,10 @@
 // DEPENDENCIES
 const events = require('express').Router()
 const db = require('../models')
-const { Event } = db 
+const { Event, MeetGreet, SetTime, Band, Stage, StageEvent } = db
 const { Op } = require('sequelize')
 
+// FIND ALL EVENTS
 events.get('/', async (req, res) => {
     try {
         const foundEvents = await Event.findAll({
@@ -14,35 +15,67 @@ events.get('/', async (req, res) => {
         })
         res.status(200).json(foundEvents)
     } catch (error) {
+        console.log(error)
         res.status(500).json(error)
     }
 })
 
-events.get('/:id', async (req, res) => {
+// FIND A SPECIFIC EVENT
+events.get('/:name', async (req, res) => {
     try {
         const foundEvent = await Event.findOne({
-            where: { event_id: req.params.id }
+            where: { name: req.params.name },
+            include: [
+                {
+                    model: MeetGreet,
+                    as: 'meet_greets',
+                    include: {
+                        model: Band,
+                        as: 'band'
+                    }
+                },
+                {
+                    model: SetTime,
+                    as: 'set_times',
+                    include: [
+                        {
+                            model: Band,
+                            as: 'band'
+                        },
+                        {
+                            model: Stage,
+                            as: 'stage'
+                        }
+                    ]
+                },
+                {
+                    model: Stage,
+                    as: 'stages',
+                    through:  { attributes: [] }
+                }
+            ]
         })
         res.status(200).json(foundEvent)
     } catch (error) {
-        console.log(err)
-        res.status(500).send('Error')
+        console.log(error)
+        res.status(500).json(error)
     }
 })
 
+// CREATE AN EVENT
 events.post('/', async (req, res) => {
     try {
         const newEvent = await Event.create(req.body)
         res.status(200).json({
-            message: 'Successfully added a new event',
+            message: 'Successfully inserted a new event',
             data: newEvent
         })
     } catch(err) {
-        console.log(err)
-        res.status(500).send('Error creating event')
+        res.status(500).json(err)
     }
 })
 
+// UPDATE AN EVENT
 events.put('/:id', async (req, res) => {
     try {
         const updatedEvents = await Event.update(req.body, {
@@ -51,14 +84,14 @@ events.put('/:id', async (req, res) => {
             }
         })
         res.status(200).json({
-            message: `Successfully updated ${updatedEvents} events`
+            message: `Successfully updated ${updatedEvents} event(s)`
         })
     } catch(err) {
-        console.log(err)
-        res.status(500).send('Error updating event')
+        res.status(500).json(err)
     }
 })
 
+// DELETE AN EVENT
 events.delete('/:id', async (req, res) => {
     try {
         const deletedEvents = await Event.destroy({
@@ -67,11 +100,10 @@ events.delete('/:id', async (req, res) => {
             }
         })
         res.status(200).json({
-            message: `Successfully deleted ${deletedEvents} events`
+            message: `Successfully deleted ${deletedEvents} event(s)`
         })
     } catch(err) {
-        console.log(err)
-        res.status(500).send('Error deleting event')
+        res.status(500).json(err)
     }
 })
 
